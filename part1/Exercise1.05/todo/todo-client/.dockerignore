@@ -1,7 +1,0 @@
-node_modules
-.next
-Dockerfile
-.dockerignore
-.gitignore
-.eslintrc.json
-README.node_modules

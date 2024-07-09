@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-server
+spec:
+  selector:
+    matchLabels:
+      app: todo-server
+  template:
+    metadata:
+      labels:
+        app: todo-server
+    spec:
+      containers:
+        - name: todo-webserver
+          image: swikrititripathi/todo-webserver:v0.3
+          env:
+            - name: CLIENT_PORT
+              value: "8082"
+            - name: PORT
+              value: "8080"

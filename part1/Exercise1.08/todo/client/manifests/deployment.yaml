@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-webclient
+spec:
+  selector:
+    matchLabels:
+      app: todo-webclient
+  template:
+    metadata:
+      labels:
+        app: todo-webclient
+    spec:
+      containers:
+        - name: todo-webclient
+          image: swikrititripathi/todo-webclient:v0.3
+          env:
+            - name: PORT
+              value: "3000"

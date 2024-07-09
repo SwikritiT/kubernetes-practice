@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-client
+spec:
+  selector:
+    matchLabels:
+      app: todo-client
+  template:
+    metadata:
+      labels:
+        app: todo-client
+    spec:
+      containers:
+        - name: todo-webclient
+          image: swikrititripathi/todo-webclient:v0.3
+          env:
+            - name: "VITE_SERVER_PORT"
+              value: "8080"
