@@ -10,6 +10,7 @@
 2. usually run a single container inside a pod but in cases where the containers are tightly coupled , more than one container can be run inside a same pod
 3. K8s takes on the task to connect a pod to external network and rest of the environment of the K8s
 4. it is deleted if the containers within stop running and contained files will be lost with it.
+5. With a pod, you can run closely related processes together, giving them (almost) the same environment as if they were all running in a single container.
 
 ## Replecation Controllers
 
@@ -196,3 +197,63 @@ kubectl get ev --field-selector type=Warning
 ```
 
 ![Events](events.png)
+
+## Understanding why one container shouldn’t contain multiple processes
+
+Containers are designed to run only a single process, not counting any child processes that it spawns. Both container tooling and Kubernetes were developed around this fact.
+
+1. If a container contains multiple processes, it'll be diffficult to seperate the logs of all the processes as they all will be intertwined in a single standard output.
+2. Another indication that containers should only run a single process is the fact that the container runtime only restarts the container when the container’s root process dies. It doesn’t care about any child processes created by this root process. If it spawns child processes, it alone is responsible for keeping all these processes running.
+
+![Containers in a pod share the same network interfaces](container-in-pod-same-net.png)
+
+## Splitting an application stack into pods
+
+![Splitting an application stack into pods](split-app-in-pod.png)
+
+## How to decide whether to split containers into multiple pods
+
+When deciding whether to use the sidecar pattern and place containers in a
+single pod, or to place them in separate pods, ask yourself the following
+questions:
+
+- Do these containers have to run on the same host?
+- Do I want to manage them as a single unit?
+- Do they form a unified whole instead of being independent components?
+- Do they have to be scaled together?
+- Can a single node meet their combined resource needs?
+
+As a rule of thumb, always place containers in separate pods unless a specific reason requires them to be part of the same pod.
+
+## create manifest file from scratch
+
+`kubectl run kiada --image=luksa/kiada:0.1 --dry-run=client -o yaml > mypod.yaml`. The --dry-run=client flag tells kubectl to output the
+definition instead of actually creating the object via the API.
+
+## Connecting to pods via kubectl port forwarding
+
+![Connecting to pods via kubectl port forwarding](port-forward.png)
+
+## The long communication path between curl and the container when using port forwarding
+
+![The long communication path between curl and the container when using port forwarding](port-fwd-communication.png)
+
+## Init containers in pod
+
+In a pod manifest, init containers are defined in the initContainers field in the spec section, just as regular containers are defined in its containers field.
+
+![pod init containers](init-containers.png)
+
+### importance of init containers
+
+- Initialize files in the volumes used by the pod’s main containers. This includes retrieving certificates and private keys used by the main container from secure certificate stores, generating config files, downloading data, and so on.
+- Initialize the pod’s networking system. Because all containers of the pod share the same network namespaces, and thus the network interfaces and configuration, any changes made to it by an init container also affect the main container.
+- Delay the start of the pod’s main containers until a precondition is met. For example, if the main container relies on another service being available before the container is started, an init container can block until this service is ready.
+- Notify an external service that the pod is about to start running. In special cases where an external system must be notified when a new instance of the application is started, an init container can be used to deliver this notification.
+
+## Deleting a pod
+
+you may wonder if you can stop a pod and start it again later, as you can with Docker containers. The answer is no. With Kubernetes, you can only remove a pod completely and create it again later.
+
+> Note: deleting the pods created by deployment will recreate exact number of pods again. The controller responsible for bringing Deployment objects to life
+> must ensure that the number of pods always matches the desired number ofreplicas specified in the object. When you delete a pod associated with the Deployment, the controller immediately creates a replacement pod. To delete these pods, you must either scale the Deployment to zero or delete the object altogether.
