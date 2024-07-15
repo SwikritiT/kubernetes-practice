@@ -257,3 +257,34 @@ you may wonder if you can stop a pod and start it again later, as you can with D
 
 > Note: deleting the pods created by deployment will recreate exact number of pods again. The controller responsible for bringing Deployment objects to life
 > must ensure that the number of pods always matches the desired number ofreplicas specified in the object. When you delete a pod associated with the Deployment, the controller immediately creates a replacement pod. To delete these pods, you must either scale the Deployment to zero or delete the object altogether.
+
+## Life cycle of a pod
+
+![life cycle of a pod](pod-life-cycle.png)
+
+## Life cycle of a container
+
+![Life cycle of a container](life-cycle-of-a-container.png)
+
+## Container's restart policy
+
+![restart policy](restart-policy.png)
+
+- As shown in the following figure, the first time a container terminates, it is restarted immediately. The next time, however, Kubernetes waits ten seconds before restarting it again. This delay is then doubled to 20, 40, 80 and then to 160 seconds after each subsequent termination. From then on, the delay is kept at five minutes. This delay that doubles between attempts is called exponential back-off.
+
+![exponential-backoff](exponential-backoff.png)
+
+The delay is reset to zero when the container has run successfully for 10 minutes. If the container must be restarted later, it is restarted immediately.
+
+## liveness probe
+
+Kubernetes can be configured to check whether an application is still alive by defining a liveness probe. You can specify a liveness probe for each container
+in the pod. Kubernetes runs the probe periodically to ask the application if it’s still alive and well. If the application doesn’t respond, an error occurs, or the response is negative, the container is considered unhealthy and is terminated. The container is then restarted if the restart policy allows it. Liveness probes can only be used in the pod’s regular containers. They can’t be defined in init containers.
+
+![liveness probe config example](liveness-probe-example.png)
+
+The parameter `initialDelaySeconds` determines how long Kubernetes should delay the execution of the first probe after starting the container. The `periodSeconds` field specifies the amount of time between the execution of two consecutive probes, whereas the `timeoutSeconds` field specifies how long to wait for a response before the probe attempt counts as failed. The `failureThreshold` field specifies how many times the probe must fail for the container to be considered unhealthy and potentially restarted.
+
+## Volumes
+
+The Kubernetes volumes, in technical terms emptyDir volumes, are shared filesystems inside a pod, this means that their lifecycle is tied to a pod.

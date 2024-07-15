@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: images
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: images
+  template:
+    metadata:
+      labels:
+        app: images
+    spec:
+      volumes:
+        - name: shared-image
+          emptyDir: {}
+      containers:
+        - name: image-display
+          image: swikrititripathi/image-display
+          volumeMounts:
+            - name: shared-image
+              mountPath: /usr/src/app/files
+        - name: image-finder
+          image: swikrititripathi/image-finder
+          volumeMounts:
+            - name: shared-image
+              mountPath: /usr/src/app/files
