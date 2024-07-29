@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingpong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingpong
+  template:
+    metadata:
+      labels:
+        app: pingpong
+    spec:
+      volumes:
+        - name: shared-file
+          persistentVolumeClaim:
+            claimName: logoutput-claim
+      containers:
+        - name: pingpong
+          image: swikrititripathi/pingpong:v0.2
+          ports:
+            - containerPort: 3001
+          volumeMounts:
+            - name: shared-file
+              mountPath: /usr/src/app/files

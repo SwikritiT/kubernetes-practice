@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logoutput
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logoutput
+  template:
+    metadata:
+      labels:
+        app: logoutput
+    spec:
+      volumes:
+        - name: shared-file
+          persistentVolumeClaim:
+            claimName: logoutput-claim
+      containers:
+        - name: logoutput-reader
+          image: swikrititripathi/hash-reader:v0.2
+          volumeMounts:
+            - name: shared-file
+              mountPath: /usr/src/app/files
+        - name: logoutput-generator
+          image: swikrititripathi/hash-generator:v0.2
+          volumeMounts:
+            - name: shared-file
+              mountPath: /usr/src/app/files

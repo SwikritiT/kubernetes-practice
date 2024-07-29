@@ -288,3 +288,8 @@ The parameter `initialDelaySeconds` determines how long Kubernetes should delay 
 ## Volumes
 
 The Kubernetes volumes, in technical terms emptyDir volumes, are shared filesystems inside a pod, this means that their lifecycle is tied to a pod.
+
+## Persistent Volumes
+
+- A Persistent Volume (PV) is a cluster-wide resource, that represents a piece of storage in the cluster that has been provisioned by the cluster administrator or is dynamically provisioned. Persistent Volumes can be backed by various types of storage such as local disk, NFS, cloud storage, etc.
+- PVs have a lifecycle independent of any individual pod that uses the PV. This means that the data in the PV can outlive the pod that it was attached to.
